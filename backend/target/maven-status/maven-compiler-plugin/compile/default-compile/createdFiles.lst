@@ -1,0 +1,4 @@
+com\glpi\reinit\backend\BackendApplication.class
+com\glpi\reinit\backend\kanban\KanbanSettingsRepository.class
+com\glpi\reinit\backend\kanban\KanbanSettings.class
+com\glpi\reinit\backend\kanban\KanbanSettingsController.class

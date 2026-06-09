@@ -1,0 +1,879 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f0f2f5;
+  color: #222;
+}
+
+.auth-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+#root {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border: 0;
+  min-height: 100vh;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+}
+
+.auth-card h1 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #1f3a5f;
+}
+
+.auth-card p {
+  font-size: 0.9rem;
+  color: #495057;
+  margin-bottom: 1rem;
+}
+
+.portal-actions {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.portal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+/* -- Layout -- */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.backoffice-layout {
+  display: flex;
+  min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* -- Sidebar -- */
+.sidebar {
+  width: 220px;
+  background: #1f3a5f;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.backoffice-sidebar {
+  width: 220px;
+  background: #1f3a5f;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding: 0.75rem 0;
+  justify-content: space-between;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 1.4rem 1.25rem 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 0;
+  overflow-y: auto;
+}
+
+.backoffice-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: transparent;
+  border: none;
+  color: #a8bcd0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.7rem 1.25rem;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+
+.nav-item.active {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border-left-color: #4dabf7;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  color: #a8bcd0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.7rem 1.25rem;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+
+.nav-link-active {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border-left-color: #4dabf7;
+}
+
+/* -- Page area -- */
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.backoffice-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.page-header {
+  background: #fff;
+  border-bottom: 1px solid #e0e4ea;
+  padding: 1rem 2rem;
+}
+
+.page-header h1 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1f3a5f;
+}
+
+.page-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.page-header-row h1 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.btn-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.page-content {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.frontoffice-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.frontoffice-nav {
+  width: 220px;
+  background: #1f3a5f;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 0;
+  flex-shrink: 0;
+}
+
+.frontoffice-layout main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* -- Card -- */
+.reinit-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  padding: 2rem;
+  width: 100%;
+  max-width: 620px;
+}
+
+.reinit-card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #1f3a5f;
+}
+
+.reinit-desc {
+  color: #666;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* -- Buttons -- */
+.btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-danger {
+  background: #e03131;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #c92a2a;
+}
+
+.btn-primary {
+  background: #1f3a5f;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #162d4a;
+}
+
+.btn-secondary {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.btn-secondary:hover {
+  background: #dee2e6;
+}
+
+/* -- Confirmation box -- */
+.confirm-box {
+  background: #fff5f5;
+  border: 1px solid #ffc9c9;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.confirm-box p {
+  flex: 1 0 100%;
+  font-weight: 600;
+  color: #c92a2a;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* -- Spinner -- */
+.spinner-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #1f3a5f;
+  font-weight: 500;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #bcd;
+  border-top-color: #1f3a5f;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* -- Log box -- */
+.log-box {
+  margin-top: 1.25rem;
+  background: #1e1e2e;
+  border-radius: 8px;
+  padding: 1rem;
+  max-height: 260px;
+  overflow-y: auto;
+  font-family: 'Consolas', monospace;
+  font-size: 0.82rem;
+}
+
+.log-line {
+  padding: 2px 0;
+}
+
+.log-info    { color: #cdd6f4; }
+.log-success { color: #a6e3a1; }
+.log-warn    { color: #f9e2af; }
+.log-error   { color: #f38ba8; }
+
+/* -- Status banner -- */
+.status-banner {
+  margin-top: 1.25rem;
+  padding: 0.65rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.status-banner.success {
+  background: #d3f9d8;
+  color: #2f9e44;
+}
+
+.status-banner.error {
+  background: #ffe3e3;
+  color: #c92a2a;
+}
+
+/* -- Import controls -- */
+.import-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.form-select {
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  color: #222;
+  background: #fff;
+  cursor: pointer;
+}
+
+.form-select:focus {
+  outline: 2px solid #4dabf7;
+  outline-offset: 1px;
+}
+
+.form-input {
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  color: #222;
+  background: #fff;
+}
+
+.form-input:focus {
+  outline: 2px solid #4dabf7;
+  outline-offset: 1px;
+}
+
+.form-file {
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+/* -- CSV preview -- */
+.csv-preview {
+  margin-bottom: 1.25rem;
+}
+
+.preview-label {
+  font-size: 0.82rem;
+  color: #666;
+  margin-bottom: 0.4rem;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+}
+
+.csv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.csv-table th {
+  background: #1f3a5f;
+  color: #fff;
+  padding: 0.45rem 0.75rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.csv-table td {
+  padding: 0.35rem 0.75rem;
+  border-top: 1px solid #dee2e6;
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.csv-table tr:nth-child(even) td {
+  background: #f8f9fa;
+}
+
+.preview-more {
+  text-align: center;
+  color: #868e96;
+  font-style: italic;
+}
+
+/* -- Import actions -- */
+.import-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.backoffice-header-actions {
+  margin-bottom: 0;
+  justify-content: flex-end;
+}
+
+/* -- Browser -- */
+.browser-toolbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.browser-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dashboard-card {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.9rem;
+  background: #fff;
+}
+
+.dashboard-card h3 {
+  color: #1f3a5f;
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.dashboard-total {
+  font-size: 1.7rem;
+  color: #1f3a5f;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.dashboard-subtitle {
+  font-size: 0.82rem;
+  color: #6c757d;
+  margin: 0.3rem 0 0.75rem;
+}
+
+.browser-page {
+  font-size: 0.85rem;
+  color: #495057;
+  font-weight: 600;
+}
+
+.front-card-wide {
+  max-width: 1100px;
+}
+
+.front-filters-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.front-inline-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.tickets-page {
+  max-width: 1100px;
+}
+
+.tickets-search {
+  min-width: 260px;
+}
+
+.tickets-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 1rem;
+}
+
+.tickets-panel {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.9rem;
+  background: #fff;
+  min-width: 0;
+}
+
+.tickets-panel h3 {
+  color: #1f3a5f;
+  font-size: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.ticket-row {
+  cursor: pointer;
+}
+
+.ticket-row.active td {
+  background: #e7f1ff;
+}
+
+.ticket-fiche {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ticket-fiche-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f3a5f;
+}
+
+.ticket-fiche-grid {
+  display: grid;
+  gap: 0.45rem;
+  max-height: 520px;
+  overflow: auto;
+}
+
+.ticket-fiche-row {
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 0.45rem 0.6rem;
+  background: #f8f9fa;
+}
+
+.ticket-fiche-key {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #6c757d;
+  margin-bottom: 0.2rem;
+}
+
+.ticket-fiche-value {
+  font-size: 0.83rem;
+  color: #343a40;
+  word-break: break-word;
+}
+
+/* -- Kanban board -- */
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.kanban-column {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  flex: 0 0 auto;
+}
+
+.kanban-header {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f3a5f;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.kanban-drop-zone {
+  flex: 1;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.kanban-card {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0.75rem;
+  cursor: grab;
+  transition: box-shadow 0.15s, transform 0.1s;
+  user-select: none;
+}
+
+.kanban-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.kanban-card:active {
+  cursor: grabbing;
+}
+
+.kanban-card-header {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1f3a5f;
+  margin-bottom: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kanban-card-body {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.kanban-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.kanban-badge.urgency {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.kanban-badge.impact {
+  background: #cfe2ff;
+  color: #084298;
+}
+
+.kanban-create-form {
+  background: #fff;
+  border: 2px dashed #dee2e6;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 0.75rem;
+}
+
+.kanban-create-form h4 {
+  font-size: 0.9rem;
+  color: #1f3a5f;
+  margin-bottom: 0.75rem;
+}
+
+/* -- Modal overlay -- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 10px;
+  padding: 2rem;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content h2 {
+  color: #1f3a5f;
+  margin-bottom: 1rem;
+}
+
+.modal-content h4 {
+  color: #1f3a5f;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .nav-item {
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+
+  .nav-item.active {
+    border-left-color: transparent;
+    border-bottom-color: #4dabf7;
+  }
+
+  .page-content {
+    padding: 1rem;
+  }
+
+  .page-header {
+    padding: 1rem;
+  }
+
+  .page-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reinit-card {
+    padding: 1.25rem;
+  }
+
+  .browser-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .front-filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .front-inline-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tickets-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .tickets-search {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .kanban-board {
+    grid-template-columns: 1fr;
+  }
+
+  .kanban-column {
+    min-width: 100%;
+  }
+}

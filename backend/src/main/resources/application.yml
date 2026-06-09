@@ -1,0 +1,25 @@
+server:
+  port: 8081
+
+spring:
+  main:
+    banner-mode: "off"
+  datasource:
+    url: jdbc:sqlite:./data/glpi_reinit.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+  sql:
+    init:
+      mode: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

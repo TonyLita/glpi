@@ -34,14 +34,14 @@ export function parseCsv(text) {
   var raw = String(text || '').replace(/^\uFEFF/, '').trim();
   var lines = raw.split(/\r?\n/);
 
-  if (lines.length < 2) {
-    throw new Error('Le fichier CSV doit contenir au moins 2 lignes (en-tête + données).');
+  if (!lines.length) {
+    return [];
   }
 
   var sep = lines[0].includes(';') ? ';' : ',';
   var keys = splitCsvLine(lines[0], sep).map(function (h) { return h.trim(); });
 
-  return lines.slice(1).filter(function (line) { return line.trim() !== ''; }).map(function (line) {
+  var dataRows = lines.slice(1).filter(function (line) { return line.trim() !== ''; }).map(function (line) {
     var values = splitCsvLine(line, sep);
     var obj = {};
     keys.forEach(function (key, i) {
@@ -50,4 +50,14 @@ export function parseCsv(text) {
     });
     return obj;
   });
+
+  if (!dataRows.length && keys.length > 0) {
+    var headerObj = {};
+    keys.forEach(function (key) {
+      if (key) headerObj[key] = '';
+    });
+    return [headerObj];
+  }
+
+  return dataRows;
 }

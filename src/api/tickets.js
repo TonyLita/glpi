@@ -65,6 +65,7 @@ export async function linkTicketItems(sessionToken, ticketId, items) {
 export async function getTicket(sessionToken, id) {
   var res = await apiClient.get('/Ticket/' + id, {
     headers: buildHeaders(sessionToken),
+    params: { expand: 'costs' },
   });
 
   if (res.status >= 400) {

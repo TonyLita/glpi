@@ -8,12 +8,14 @@ import {
 import BackofficeHome from '../components/BackofficeHome';
 import BulkImport from '../components/BulkImport';
 import ReInitButton from '../components/ReInitButton';
-import ReInitV2Button from '../components/ReInitV2Button';
+// import ReInitV2Button from '../components/ReInitV2Button';
 import CsvImport from '../components/CsvImport';
 import DataBrowser from '../components/DataBrowser';
 import ApiHealth from '../components/ApiHealth';
 import TicketsPage from '../components/TicketsPage';
 import KanbanSettingsPage from '../components/KanbanSettingsPage';
+import ListTickets from '../components/ListTickets';
+import ImportMovementsPage from '../components/ImportMovementsPage';
 
 const BACKOFFICE_CODE = import.meta.env.VITE_BACKOFFICE_CODE || 'GLPI-BO-2026';
 const AUTH_KEY = 'glpi_backoffice_unlocked';
@@ -21,9 +23,11 @@ const AUTH_KEY = 'glpi_backoffice_unlocked';
 const NAV_ITEMS = [
   { path: '',            label: 'Backoffice',          Icon: Home,        end: true },
   { path: 'tickets',     label: 'Tickets',             Icon: Ticket },
+  { path: 'list-tickets',label: 'Coûts par asset',     Icon: ClipboardList },
   { path: 'reinit',      label: 'Réinitialisation',    Icon: ServerCrash },
-  { path: 'reinit-v2',   label: 'Réinitialisation v2', Icon: RotateCcw },
+  // { path: 'reinit-v2',   label: 'Réinitialisation v2', Icon: RotateCcw },
   { path: 'import',      label: 'Import CSV',          Icon: FilePlus2 },
+  { path: 'import-mouvements', label: 'Import mouvements', Icon: Upload },
   { path: 'browse',      label: 'Consultation',        Icon: Database },
   { path: 'api',         label: 'Test API',            Icon: Activity },
   { path: 'bulk-import', label: 'Import groupé',       Icon: Upload },
@@ -132,9 +136,11 @@ export default function BackofficePage() {
         <Routes>
           <Route index element={<BackofficeHome />} />
           <Route path="tickets"     element={<TicketsPage />} />
+          <Route path="list-tickets" element={<ListTickets />} />
           <Route path="reinit"      element={<ReInitButton />} />
-          <Route path="reinit-v2"   element={<ReInitV2Button />} />
+          {/* <Route path="reinit-v2"   element={<ReInitV2Button />} /> */}
           <Route path="import"      element={<CsvImport />} />
+          <Route path="import-mouvements" element={<ImportMovementsPage />} />
           <Route path="browse"      element={<DataBrowser />} />
           <Route path="api"         element={<ApiHealth />} />
           <Route path="bulk-import" element={<BulkImport />} />

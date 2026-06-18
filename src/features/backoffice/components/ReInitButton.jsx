@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { initSession, killSession, getAllIds, deleteItemsBatch } from '../../../api/index';
+import { initSession, killSession, getAllIds, deleteItemsBatch, deleteUsersExcludingSystem } from '../../../api/index';
+import { cleanupDatabase } from '../../../api/backendApi';
 import { REINIT_TYPES } from '../../../constants/itemtypes';
 import { STATUS } from '../../../constants/status';
 
@@ -7,6 +8,7 @@ export default function ReInitButton() {
   const [status, setStatus] = useState(STATUS.IDLE);
   const [logs, setLogs] = useState([]);
   const [confirm, setConfirm] = useState(false);
+  const [confirmCleanup, setConfirmCleanup] = useState(false);
   const logCounter = useRef(0);
 
   function addLog(msg, type = 'info') {
@@ -26,6 +28,24 @@ export default function ReInitButton() {
       addLog(`Session ouverte.`, 'success');
 
       for (const { label, itemtype } of REINIT_TYPES) {
+        // User = traitement spécial (exclut users système)
+        if (itemtype === 'User') {
+          addLog(`${label}: recherche des utilisateurs NON-système…`);
+          try {
+            addLog(`${label}: ⚠️ Protection users système [1,2,3,4,5,6]`);
+            const deleted = await deleteUsersExcludingSystem(sessionToken);
+            if (deleted === 0) {
+              addLog(`${label}: aucun utilisateur à supprimer (seulement users système).`, 'warn');
+            } else {
+              addLog(`${label}: ${deleted} utilisateur(s) supprimé(s).`, 'success');
+            }
+          } catch (e) {
+            addLog(`${label}: erreur — ${e.message}`, 'error');
+          }
+          continue;
+        }
+
+        // Autres itemtypes
         addLog(`Récupération des IDs — ${label}…`);
         let ids = [];
         try {
@@ -66,6 +86,23 @@ export default function ReInitButton() {
     }
   }
 
+  async function handleCleanupDB() {
+    setConfirmCleanup(false);
+    setStatus(STATUS.RUNNING);
+    setLogs([]);
+
+    try {
+      addLog('Nettoyage de la base de données SQLite…');
+      const result = await cleanupDatabase();
+      addLog(result.message || 'Nettoyage réussi', 'success');
+      setStatus(STATUS.SUCCESS);
+      addLog('Nettoyage terminé.', 'success');
+    } catch (e) {
+      setStatus(STATUS.ERROR);
+      addLog(`Erreur: ${e.message}`, 'error');
+    }
+  }
+
   return (
     <div className="reinit-card">
       <h2>Réinitialisation des données GLPI</h2>
@@ -73,10 +110,15 @@ export default function ReInitButton() {
         Suppression définitive de toutes les données GLPI.
       </p>
 
-      {!confirm && status !== STATUS.RUNNING && (
-        <button className="btn btn-danger" onClick={() => setConfirm(true)}>
-          Re_Init
-        </button>
+      {!confirm && !confirmCleanup && status !== STATUS.RUNNING && (
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn btn-danger" onClick={() => setConfirm(true)}>
+            Re_Init
+          </button>
+          <button className="btn btn-danger" onClick={() => setConfirmCleanup(true)}>
+            Nettoyer SQLite
+          </button>
+        </div>
       )}
 
       {confirm && (
@@ -86,6 +128,18 @@ export default function ReInitButton() {
             Oui, supprimer tout
           </button>
           <button className="btn btn-secondary" onClick={() => setConfirm(false)}>
+            Annuler
+          </button>
+        </div>
+      )}
+
+      {confirmCleanup && (
+        <div className="confirm-box">
+          <p>Supprimer tout les coûts et réouvertures SQLite ?</p>
+          <button className="btn btn-danger" onClick={handleCleanupDB}>
+            Oui, nettoyer
+          </button>
+          <button className="btn btn-secondary" onClick={() => setConfirmCleanup(false)}>
             Annuler
           </button>
         </div>

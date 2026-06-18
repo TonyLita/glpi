@@ -6,8 +6,8 @@
 
 body {
   font-family: 'Segoe UI', sans-serif;
-  background: #f0f2f5;
-  color: #222;
+  background: #f8f4ff;
+  color: #1f2937;
 }
 
 .auth-screen {
@@ -38,12 +38,12 @@ body {
 .auth-card h1 {
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
-  color: #1f3a5f;
+  color: #7c3aed;
 }
 
 .auth-card p {
   font-size: 0.9rem;
-  color: #495057;
+  color: #6b7280;
   margin-bottom: 1rem;
 }
 
@@ -77,7 +77,7 @@ body {
 /* -- Sidebar -- */
 .sidebar {
   width: 220px;
-  background: #1f3a5f;
+  background: #7c3aed;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -85,7 +85,7 @@ body {
 
 .backoffice-sidebar {
   width: 220px;
-  background: #1f3a5f;
+  background: #7c3aed;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -97,7 +97,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  color: #fff;
+  color: #d8b4fe;
   font-size: 1rem;
   font-weight: 700;
   padding: 1.4rem 1.25rem 1.2rem;
@@ -123,7 +123,7 @@ body {
   gap: 0.7rem;
   background: transparent;
   border: none;
-  color: #a8bcd0;
+  color: #8b5cf6;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
@@ -140,8 +140,8 @@ body {
 
 .nav-item.active {
   background: rgba(255,255,255,0.1);
-  color: #fff;
-  border-left-color: #4dabf7;
+  color: #f472b6;
+  border-left-color: #06b6d4;
 }
 
 .nav-link {
@@ -151,7 +151,7 @@ body {
   text-decoration: none;
   background: transparent;
   border: none;
-  color: #a8bcd0;
+  color: #c4b5fd;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
@@ -169,7 +169,7 @@ body {
 .nav-link-active {
   background: rgba(255,255,255,0.1);
   color: #fff;
-  border-left-color: #4dabf7;
+  border-left-color: #06b6d4;
 }
 
 /* -- Page area -- */
@@ -189,14 +189,14 @@ body {
 
 .page-header {
   background: #fff;
-  border-bottom: 1px solid #e0e4ea;
+  border-bottom: 1px solid #e8deff;
   padding: 1rem 2rem;
 }
 
 .page-header h1 {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #1f3a5f;
+  color: #7c3aed;
 }
 
 .page-header-row {
@@ -234,7 +234,7 @@ body {
 
 .frontoffice-nav {
   width: 220px;
-  background: #1f3a5f;
+  background: #7c3aed;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -260,11 +260,11 @@ body {
 .reinit-card h2 {
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
-  color: #1f3a5f;
+  color: #7c3aed;
 }
 
 .reinit-desc {
-  color: #666;
+  color: #9ca3af;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
   line-height: 1.5;
@@ -286,16 +286,16 @@ body {
 }
 
 .btn-danger {
-  background: #e03131;
+  background: #ef4444;
   color: #fff;
 }
 
 .btn-danger:hover {
-  background: #c92a2a;
+  background: #dc2626;
 }
 
 .btn-primary {
-  background: #1f3a5f;
+  background: #7c3aed;
   color: #fff;
 }
 
@@ -304,12 +304,12 @@ body {
 }
 
 .btn-secondary {
-  background: #e9ecef;
-  color: #495057;
+  background: #f5f3ff;
+  color: #6b7280;
 }
 
 .btn-secondary:hover {
-  background: #dee2e6;
+  background: #e5d4ff;
 }
 
 /* -- Confirmation box -- */
@@ -328,7 +328,7 @@ body {
 .confirm-box p {
   flex: 1 0 100%;
   font-weight: 600;
-  color: #c92a2a;
+  color: #dc2626;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
 }
@@ -338,7 +338,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: #1f3a5f;
+  color: #7c3aed;
   font-weight: 500;
   margin: 1rem 0;
   font-size: 0.9rem;
@@ -349,7 +349,7 @@ body {
   width: 18px;
   height: 18px;
   border: 3px solid #bcd;
-  border-top-color: #1f3a5f;
+  border-top-color: #7c3aed;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -361,7 +361,7 @@ body {
 /* -- Log box -- */
 .log-box {
   margin-top: 1.25rem;
-  background: #1e1e2e;
+  background: #2d1b69;
   border-radius: 8px;
   padding: 1rem;
   max-height: 260px;
@@ -374,10 +374,10 @@ body {
   padding: 2px 0;
 }
 
-.log-info    { color: #cdd6f4; }
-.log-success { color: #a6e3a1; }
-.log-warn    { color: #f9e2af; }
-.log-error   { color: #f38ba8; }
+.log-info    { color: #e9d5ff; }
+.log-success { color: #86efac; }
+.log-warn    { color: #fde047; }
+.log-error   { color: #f43f5e; }
 
 /* -- Status banner -- */
 .status-banner {
@@ -390,13 +390,13 @@ body {
 }
 
 .status-banner.success {
-  background: #d3f9d8;
-  color: #2f9e44;
+  background: #d1fae5;
+  color: #059669;
 }
 
 .status-banner.error {
-  background: #ffe3e3;
-  color: #c92a2a;
+  background: #fee2e2;
+  color: #dc2626;
 }
 
 /* -- Import controls -- */
@@ -422,7 +422,7 @@ body {
 }
 
 .form-select {
-  border: 1px solid #ced4da;
+  border: 1px solid #ddd6fe;
   border-radius: 6px;
   font-size: 0.9rem;
   padding: 0.5rem 0.75rem;
@@ -432,12 +432,12 @@ body {
 }
 
 .form-select:focus {
-  outline: 2px solid #4dabf7;
+  outline: 2px solid #06b6d4;
   outline-offset: 1px;
 }
 
 .form-input {
-  border: 1px solid #ced4da;
+  border: 1px solid #ddd6fe;
   border-radius: 6px;
   font-size: 0.9rem;
   padding: 0.5rem 0.75rem;
@@ -446,7 +446,7 @@ body {
 }
 
 .form-input:focus {
-  outline: 2px solid #4dabf7;
+  outline: 2px solid #06b6d4;
   outline-offset: 1px;
 }
 
@@ -462,13 +462,13 @@ body {
 
 .preview-label {
   font-size: 0.82rem;
-  color: #666;
+  color: #9ca3af;
   margin-bottom: 0.4rem;
 }
 
 .table-scroll {
   overflow-x: auto;
-  border: 1px solid #dee2e6;
+  border: 1px solid #e5d4ff;
   border-radius: 6px;
 }
 
@@ -479,7 +479,7 @@ body {
 }
 
 .csv-table th {
-  background: #1f3a5f;
+  background: #7c3aed;
   color: #fff;
   padding: 0.45rem 0.75rem;
   text-align: left;
@@ -488,7 +488,7 @@ body {
 
 .csv-table td {
   padding: 0.35rem 0.75rem;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid #e5d4ff;
   white-space: nowrap;
   max-width: 180px;
   overflow: hidden;
@@ -496,7 +496,7 @@ body {
 }
 
 .csv-table tr:nth-child(even) td {
-  background: #f8f9fa;
+  background: #faf8ff;
 }
 
 .preview-more {
@@ -543,21 +543,21 @@ body {
 }
 
 .dashboard-card {
-  border: 1px solid #dee2e6;
+  border: 1px solid #e5d4ff;
   border-radius: 8px;
   padding: 0.9rem;
   background: #fff;
 }
 
 .dashboard-card h3 {
-  color: #1f3a5f;
+  color: #7c3aed;
   font-size: 1rem;
   margin-bottom: 0.4rem;
 }
 
 .dashboard-total {
   font-size: 1.7rem;
-  color: #1f3a5f;
+  color: #7c3aed;
   font-weight: 700;
   line-height: 1;
 }
@@ -570,7 +570,7 @@ body {
 
 .browser-page {
   font-size: 0.85rem;
-  color: #495057;
+  color: #6b7280;
   font-weight: 600;
 }
 
@@ -603,7 +603,7 @@ body {
 }
 
 .tickets-panel {
-  border: 1px solid #dee2e6;
+  border: 1px solid #e5d4ff;
   border-radius: 8px;
   padding: 0.9rem;
   background: #fff;
@@ -611,7 +611,7 @@ body {
 }
 
 .tickets-panel h3 {
-  color: #1f3a5f;
+  color: #7c3aed;
   font-size: 1rem;
   margin-bottom: 0.6rem;
 }
@@ -633,7 +633,7 @@ body {
 .ticket-fiche-title {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #1f3a5f;
+  color: #7c3aed;
 }
 
 .ticket-fiche-grid {
@@ -644,10 +644,10 @@ body {
 }
 
 .ticket-fiche-row {
-  border: 1px solid #e9ecef;
+  border: 1px solid #f5f3ff;
   border-radius: 6px;
   padding: 0.45rem 0.6rem;
-  background: #f8f9fa;
+  background: #faf8ff;
 }
 
 .ticket-fiche-key {
@@ -675,7 +675,7 @@ body {
 }
 
 .kanban-column {
-  background: #f8f9fa;
+  background: #faf8ff;
   border-radius: 8px;
   padding: 1rem;
   display: flex;
@@ -687,10 +687,10 @@ body {
 .kanban-header {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #1f3a5f;
+  color: #7c3aed;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid #e5d4ff;
 }
 
 .kanban-drop-zone {
@@ -703,7 +703,7 @@ body {
 
 .kanban-card {
   background: #fff;
-  border: 1px solid #dee2e6;
+  border: 1px solid #e5d4ff;
   border-radius: 6px;
   padding: 0.75rem;
   cursor: grab;
@@ -722,7 +722,7 @@ body {
 .kanban-card-header {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #1f3a5f;
+  color: #7c3aed;
   margin-bottom: 0.4rem;
   white-space: nowrap;
   overflow: hidden;
@@ -756,7 +756,7 @@ body {
 
 .kanban-create-form {
   background: #fff;
-  border: 2px dashed #dee2e6;
+  border: 2px dashed #e5d4ff;
   border-radius: 6px;
   padding: 1rem;
   margin-top: 0.75rem;
@@ -764,7 +764,7 @@ body {
 
 .kanban-create-form h4 {
   font-size: 0.9rem;
-  color: #1f3a5f;
+  color: #7c3aed;
   margin-bottom: 0.75rem;
 }
 
@@ -793,12 +793,12 @@ body {
 }
 
 .modal-content h2 {
-  color: #1f3a5f;
+  color: #7c3aed;
   margin-bottom: 1rem;
 }
 
 .modal-content h4 {
-  color: #1f3a5f;
+  color: #7c3aed;
   margin-bottom: 0.5rem;
 }
 
@@ -824,7 +824,7 @@ body {
 
   .nav-item.active {
     border-left-color: transparent;
-    border-bottom-color: #4dabf7;
+    border-bottom-color: #06b6d4;
   }
 
   .page-content {

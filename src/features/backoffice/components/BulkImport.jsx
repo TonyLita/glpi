@@ -31,21 +31,14 @@ const ITEMTYPE_MODEL_FIELD = {
 const TICKET_STATUS_TO_VALUE = {
   new: 1,
   nouveau: 1,
-  assigned: 2,
-  attribue: 2,
-  'attribué': 2,
-  planned: 3,
-  planifie: 3,
-  'planifié': 3,
-  pending: 4,
-  enattente: 4,
-  solved: 5,
-  resolu: 5,
-  'résolu': 5,
+  'in progress': 2,
+  'en cours': 2,
+  encours: 2,
   closed: 6,
   ferme: 6,
   'fermé': 6,
 };
+
 
 const TICKET_TYPE_TO_VALUE = {
   incident: 1,
@@ -184,10 +177,10 @@ function parseItemsCell(raw) {
 }
 
 function ensureHeaders(rows, expectedHeaders) {
-  if (!rows || !rows.length) {
+  if (!rows || rows.length === 0) {
     return {
-      ok: false,
-      missing: expectedHeaders,
+      ok: true,
+      missing: [],
     };
   }
 
@@ -769,10 +762,6 @@ export default function BulkImport() {
         var type = String(row.Type || '').trim();
         var status = String(row.Status || '').trim();
 
-        if (!title) {
-          addLog('Ticket ignoré (Titre vide) - Ref ' + (refTicket || '?'), 'warn');
-          return null;
-        }
 
         var prio = priorityToUrgencyImpact(row.Priority);
         var ticketPayload = {
@@ -783,6 +772,7 @@ export default function BulkImport() {
         };
 
         var meta = [];
+        if (refTicket) meta.push('Ref_Ticket: ' + refTicket);
         if (date || hour) meta.push('Date/Heure: ' + date + (hour ? ' ' + hour : ''));
         if (type) meta.push('Type: ' + type);
         if (status) meta.push('Status source: ' + status);
@@ -804,7 +794,7 @@ export default function BulkImport() {
           ticketPayload.status = TICKET_STATUS_TO_VALUE[statusKey];
         }
 
-        var fpTicket = ticketFingerprint(ticketPayload.name, ticketPayload.content);
+        var fpTicket = refTicket + '|' + ticketFingerprint(ticketPayload.name, ticketPayload.content);
         var existingTicketId = existingTicketMap[fpTicket];
         var ticketIdToUse = null;
 
@@ -881,7 +871,7 @@ export default function BulkImport() {
         await createTicketCost(sessionToken, ticketId, row);
         return ticketId;
       }));
-
+        
       var costOk = 0;
       var costFail = 0;
       for (const r of costResults) {

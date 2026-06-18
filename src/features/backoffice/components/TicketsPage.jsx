@@ -3,7 +3,13 @@ import { initSession, killSession } from '../../../api/session';
 import { listItems } from '../../../api/items';
 
 const PAGE_SIZE = 50;
-const PREFERRED_COLS = ['id', 'name', 'status', 'date', 'date_mod'];
+const PREFERRED_COLS = ['id', 'ref_ticket', 'name', 'status', 'date', 'date_mod'];
+
+function extractRefTicket(content) {
+  if (!content) return null;
+  const match = String(content).match(/Ref_Ticket:\s*(\S+)/);
+  return match ? match[1] : null;
+}
 
 function ticketLabel(ticket) {
   return ticket.name || ticket.content || ticket.id || '';
@@ -61,14 +67,18 @@ export default function TicketsPage() {
     try {
       sessionToken = await initSession();
       const rows = await listItems(sessionToken, 'Ticket', 0, PAGE_SIZE - 1);
-      setTickets(rows);
-      setSelectedId(rows.length > 0 ? rows[0].id : null);
+      const enriched = rows.map(t => ({
+        ...t,
+        ref_ticket: extractRefTicket(t.content) || '-'
+      }));
+      setTickets(enriched);
+      setSelectedId(enriched.length > 0 ? enriched[0].id : null);
     } catch (e) {
       setError(e.message || 'Erreur lors du chargement des tickets');
       setTickets([]);
       setSelectedId(null);
     } finally {
-      if (sessionToken) await killSession(sessionToken).catch(() => {});
+      if (sessionToken) await killSession(sessionToken).catch(() => { });
       setLoading(false);
     }
   }

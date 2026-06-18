@@ -4,9 +4,8 @@ import { initSession, killSession } from '../../../api/session';
 import { listItems } from '../../../api/items';
 import { updateTicketStatus } from '../../../api/tickets';
 import { KANBAN_COLUMNS, TICKET_URGENCY_OPTIONS, TICKET_IMPACT_OPTIONS, TICKET_TYPE_OPTIONS, TICKET_STATUS_OPTIONS, ASSET_ELEMENT_TYPES } from '../../../constants/selectOptions';
-import StatusChangeModal from './StatusChangeModal';
 import { createTicket, linkTicketItems } from '../../../api/tickets';
-import { getKanbanSettings } from '../../../api/backendApi';
+import { getKanbanSettings, ajouterCoutTicket, supprimerCoutsTicket, enregistrerReouverture, supprimerDernierCoutTicket, supprimerDerniereReouverture } from '../../../api/backendApi';
 
 function defaultDatetime() {
   return new Date().toISOString().slice(0, 16);
@@ -32,13 +31,18 @@ function impactLabel(value) {
   return opt ? opt.label : 'N/A';
 }
 
+function extractRefTicket(content) {
+  if (!content) return null;
+  const match = String(content).match(/Ref_Ticket:\s*(\S+)/);
+  return match ? match[1] : null;
+}
+
 export default function KanbanBoard() {
   const navigate = useNavigate();
   const [columns, setColumns] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [draggedTicket, setDraggedTicket] = useState(null);
-  const [pendingStatusChange, setPendingStatusChange] = useState(null);
   const [creatingInStatus, setCreatingInStatus] = useState(null);
   const [createForm, setCreateForm] = useState({ name: '', content: '', urgency: '3', impact: '3', type: '1', status: '1', ticketDate: defaultDatetime(), selected: [] });
   const [submitting, setSubmitting] = useState(false);
@@ -47,6 +51,15 @@ export default function KanbanBoard() {
   const [kanbanElemQuery, setKanbanElemQuery] = useState('');
   const [kanbanElemTypeFilter, setKanbanElemTypeFilter] = useState('all');
   const [kanbanSettings, setKanbanSettings] = useState({});
+  const [editingCout, setEditingCout] = useState(null);
+  const [coutMontant, setCoutMontant] = useState('');
+  const [submittingCout, setSubmittingCout] = useState(false);
+  const [pendingDeleteCosts, setPendingDeleteCosts] = useState(null);
+  const [pendingReouverture, setPendingReouverture] = useState(null);
+  const [pourcentageReouverture, setPourcentageReouverture] = useState('');
+  const [modeReouverture, setModeReouverture] = useState('mode1');
+  const [supprimerDernierCout, setSupprimerDernierCout] = useState(false);
+  const [submittingReouverture, setSubmittingReouverture] = useState(false);
 
   async function loadTickets() {
     setLoading(true);
@@ -167,8 +180,17 @@ export default function KanbanBoard() {
       return;
     }
 
-    if (toStatus === 5) {
-      setPendingStatusChange({ ticketId: draggedTicket.id, fromStatus: draggedTicket.fromStatus, toStatus });
+    if (draggedTicket.fromStatus === 5 && toStatus !== 5) {
+      const ticket = (columns[5] || []).find(t => t.id === draggedTicket.id);
+      const ref = ticket ? extractRefTicket(ticket.content) : null;
+      if (!ref) {
+        setError(`Ticket #${draggedTicket.id} sans Ref_Ticket — réouverture impossible`);
+        setDraggedTicket(null);
+        return;
+      }
+      setPendingReouverture({ ticketId: ref, glpiId: draggedTicket.id, fromStatus: draggedTicket.fromStatus, toStatus });
+      setPourcentageReouverture('');
+      setModeReouverture('mode1');
       setDraggedTicket(null);
     } else {
       await changeStatus(draggedTicket.id, draggedTicket.fromStatus, toStatus);
@@ -253,13 +275,73 @@ export default function KanbanBoard() {
     }
   }
 
-  function onStatusChangeConfirm() {
-    setPendingStatusChange(null);
-    loadTickets();
+  async function onDeleteCostsConfirm() {
+    if (!pendingDeleteCosts) return;
+    try {
+      await supprimerCoutsTicket(pendingDeleteCosts.ticketId);
+      await changeStatus(pendingDeleteCosts.ticketId, pendingDeleteCosts.fromStatus, pendingDeleteCosts.toStatus);
+      setPendingDeleteCosts(null);
+    } catch (e) {
+      setError(e.message || 'Erreur lors de la suppression des coûts');
+    }
   }
 
-  function onStatusChangeCancel() {
-    setPendingStatusChange(null);
+  function onDeleteCostsCancel() {
+    setPendingDeleteCosts(null);
+  }
+
+  async function onDeleteCostsSkip() {
+    if (!pendingDeleteCosts) return;
+    await changeStatus(pendingDeleteCosts.ticketId, pendingDeleteCosts.fromStatus, pendingDeleteCosts.toStatus);
+    setPendingDeleteCosts(null);
+  }
+
+  async function confirmerReouverture() {
+    const pct = Number(pourcentageReouverture);
+    if (pourcentageReouverture === '' || isNaN(pct) || pct < 0 || pct > 100) {
+      setError('Pourcentage invalide (0-100)');
+      return;
+    }
+    setSubmittingReouverture(true);
+    try {
+      if (supprimerDernierCout) {
+        await supprimerDernierCoutTicket(pendingReouverture.ticketId);
+      }
+      await enregistrerReouverture(pendingReouverture.ticketId, pct, modeReouverture);
+      await changeStatus(pendingReouverture.glpiId, pendingReouverture.fromStatus, pendingReouverture.toStatus);
+      setPendingReouverture(null);
+      setPourcentageReouverture('');
+      setModeReouverture('mode1');
+      setSupprimerDernierCout(false);
+    } catch (e) {
+      setError(e.message || 'Erreur réouverture');
+    } finally {
+      setSubmittingReouverture(false);
+    }
+  }
+
+  async function ajouterCoutFinal() {
+    if (!coutMontant.trim()) {
+      setError('Montant requis');
+      return;
+    }
+
+    setSubmittingCout(true);
+    setError('');
+
+    try {
+      const nbItems = editingCout.nbItems || 1;
+      const montantParItem = Number(coutMontant) / nbItems;
+      await ajouterCoutTicket(editingCout.ticketId, montantParItem);
+
+      setEditingCout(null);
+      setCoutMontant('');
+      setError('');
+    } catch (e) {
+      setError(e.message || 'Erreur lors de l\'ajout du coût');
+    } finally {
+      setSubmittingCout(false);
+    }
   }
 
   function isKanbanElemSelected(item) {
@@ -301,21 +383,90 @@ export default function KanbanBoard() {
                 onDrop={e => onDrop(e, col.status)}
               >
                 {(columns[col.status] || []).map(ticket => (
-                  <div
-                    key={ticket.id}
-                    className="kanban-card"
-                    draggable
-                    onDragStart={e => onDragStart(e, ticket.id, col.status)}
-                    onClick={() => navigate(`/frontoffice/ticket/${ticket.id}`)}
-                  >
-                    <div className="kanban-card-header">
-                      <strong>#{ticket.id}</strong> {ticket.name}
+                  <div key={ticket.id}>
+                    <div
+                      className="kanban-card"
+                      draggable
+                      onDragStart={e => onDragStart(e, ticket.id, col.status)}
+                      onClick={() => navigate(`/frontoffice/ticket/${ticket.id}`)}
+                    >
+                      <div className="kanban-card-header">
+                        <strong>#{ticket.id}</strong> {ticket.name}
+                      </div>
+                      <div className="kanban-card-body">
+                        <span className="kanban-badge type">T: {typeLabel(ticket.type)}</span>
+                        <span className="kanban-badge urgency">U: {urgencyLabel(ticket.urgency)}</span>
+                        <span className="kanban-badge impact">I: {impactLabel(ticket.impact)}</span>
+                      </div>
                     </div>
-                    <div className="kanban-card-body">
-                      <span className="kanban-badge type">T: {typeLabel(ticket.type)}</span>
-                      <span className="kanban-badge urgency">U: {urgencyLabel(ticket.urgency)}</span>
-                      <span className="kanban-badge impact">I: {impactLabel(ticket.impact)}</span>
-                    </div>
+                    {col.status === 5 && creatingInStatus === null && (
+                      <div style={{ display: 'flex', gap: '0.25rem', marginTop: '0.25rem' }}>
+                        <button
+                          className="btn btn-secondary"
+                          style={{ flex: 1, fontSize: '0.85rem', padding: '0.25rem' }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            const ref = extractRefTicket(ticket.content);
+                            if (!ref) { setError(`Ticket #${ticket.id} sans Ref_Ticket dans le contenu`); return; }
+                            setEditingCout({ ticketId: ref, glpiId: ticket.id, nbItems: 1 });
+                          }}
+                          disabled={submittingCout}
+                        >
+                          + Coût supp.
+                        </button>
+                        <button
+                          className="btn btn-secondary"
+                          style={{ flex: 1, fontSize: '0.85rem', padding: '0.25rem' }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            const ref = extractRefTicket(ticket.content);
+                            if (!ref) { setError(`Ticket #${ticket.id} sans Ref_Ticket dans le contenu`); return; }
+                            setPendingReouverture({ ticketId: ref, glpiId: ticket.id, fromStatus: 5, toStatus: 2 });
+                            setPourcentageReouverture('');
+                            setModeReouverture('mode1');
+                          }}
+                          disabled={submittingReouverture}
+                        >
+                          Réouvrir
+                        </button>
+                      </div>
+                    )}
+                    {editingCout && editingCout.glpiId === ticket.id && (
+                      <div style={{ padding: '0.5rem', marginTop: '0.25rem', backgroundColor: '#f9f9f9', border: '1px solid #ddd', borderRadius: '4px' }}>
+                        <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Montant total (÷ {editingCout.nbItems})</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={coutMontant}
+                          onChange={e => setCoutMontant(e.target.value)}
+                          placeholder="0.00"
+                          style={{ width: '100%', marginTop: '0.25rem', marginBottom: '0.5rem', padding: '0.25rem', boxSizing: 'border-box' }}
+                          disabled={submittingCout}
+                          autoFocus
+                        />
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            className="btn btn-primary"
+                            onClick={ajouterCoutFinal}
+                            disabled={submittingCout}
+                            style={{ flex: 1, fontSize: '0.85rem', padding: '0.25rem' }}
+                          >
+                            {submittingCout ? 'Enreg...' : 'Enregister'}
+                          </button>
+                          <button
+                            className="btn btn-secondary"
+                            onClick={() => {
+                              setEditingCout(null);
+                              setCoutMontant('');
+                            }}
+                            disabled={submittingCout}
+                            style={{ flex: 1, fontSize: '0.85rem', padding: '0.25rem' }}
+                          >
+                            Annuler
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
 
@@ -521,12 +672,152 @@ export default function KanbanBoard() {
         </div>
       )}
 
-      {pendingStatusChange && (
-        <StatusChangeModal
-          ticketId={pendingStatusChange.ticketId}
-          onConfirm={onStatusChangeConfirm}
-          onCancel={onStatusChangeCancel}
-        />
+      {pendingReouverture && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: '#fff', padding: '2rem', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', minWidth: '380px' }}>
+            <h3 style={{ marginTop: 0 }}>Réouverture du ticket ref #{pendingReouverture.ticketId}</h3>
+            <p style={{ color: '#666' }}>Pourcentage du coût total à ajouter lors de la réouverture:</p>
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Pourcentage</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={pourcentageReouverture}
+                  onChange={e => setPourcentageReouverture(e.target.value)}
+                  placeholder="Ex: 10"
+                  style={{ flex: 1, padding: '0.5rem', fontSize: '1rem' }}
+                  autoFocus
+                  disabled={submittingReouverture}
+                />
+                <span style={{ fontWeight: 'bold' }}>%</span>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Mode de calcul</label>
+              <select
+                className="form-select"
+                value={modeReouverture}
+                onChange={e => setModeReouverture(e.target.value)}
+                disabled={submittingReouverture}
+                style={{ width: '100%', padding: '0.5rem', fontSize: '0.95rem' }}
+              >
+                <option value="mode1">Mode 1 - Dernier coût enregistré</option>
+                <option value="mode2">Mode 2 - Premier coût enregistré</option>
+                <option value="mode3">Mode 3 - Moyenne des coûts</option>
+                <option value="mode4">Mode 4 - Somme des coûts</option>
+              </select>
+            </div>
+            <div style={{ backgroundColor: '#f9f9f9', padding: '0.75rem', borderRadius: '4px', marginBottom: '1.5rem', border: '1px solid #eee' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', margin: 0 }}>
+                <input
+                  type="checkbox"
+                  checked={supprimerDernierCout}
+                  onChange={e => setSupprimerDernierCout(e.target.checked)}
+                  disabled={submittingReouverture}
+                  style={{ cursor: 'pointer' }}
+                />
+                <span style={{ fontSize: '0.9rem', color: '#333' }}>Annuler le dernier coût supplémentaire (optionnel)</span>
+              </label>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => {
+                  setPendingReouverture(null);
+                  setPourcentageReouverture('');
+                  setModeReouverture('mode1');
+                  setSupprimerDernierCout(false);
+                }}
+                disabled={submittingReouverture}
+              >
+                Annuler
+              </button>
+              <button
+                className="btn btn-secondary"
+                style={{ color: '#c0392b', borderColor: '#c0392b' }}
+                disabled={submittingReouverture}
+                onClick={async () => {
+                  setSubmittingReouverture(true);
+                  try {
+                    await supprimerDernierCoutTicket(pendingReouverture.ticketId); // ticketId = ref_ticket
+                    setPendingReouverture(null);
+                    setPourcentageReouverture('');
+                    setModeReouverture('mode1');
+                    setSupprimerDernierCout(false);
+                  } catch (e) {
+                    setError(e.message || 'Erreur annulation clôture');
+                  } finally {
+                    setSubmittingReouverture(false);
+                  }
+                }}
+              >
+                Annuler la clôture ⚠️
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={confirmerReouverture}
+                disabled={submittingReouverture}
+              >
+                {submittingReouverture ? 'Enregistrement...' : 'Confirmer réouverture'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingDeleteCosts && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            backgroundColor: '#fff',
+            padding: '2rem',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            maxWidth: '500px',
+          }}>
+            <h3 style={{ marginTop: 0 }}>Supprimer les coûts supplémentaires?</h3>
+            <p style={{ color: '#666', marginBottom: '1.5rem' }}>
+              Ce ticket passait du statut "Terminé" à "En cours". Voulez-vous supprimer les coûts supplémentaires associés?
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+              <button
+                className="btn btn-secondary"
+                onClick={onDeleteCostsCancel}
+                style={{ padding: '0.5rem 1rem' }}
+              >
+                Annuler
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={onDeleteCostsSkip}
+                style={{ padding: '0.5rem 1rem' }}
+              >
+                Garder les coûts
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={onDeleteCostsConfirm}
+                style={{ padding: '0.5rem 1rem' }}
+              >
+                Supprimer les coûts
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

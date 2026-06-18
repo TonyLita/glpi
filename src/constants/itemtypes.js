@@ -14,4 +14,6 @@ export var REINIT_TYPES = [
   // Gestion
   { label: 'Documents',           itemtype: 'Document' },
   { label: 'Contrats',            itemtype: 'Contract' },
+  // Utilisateurs (protège 6 users système)
+  { label: 'Utilisateurs',        itemtype: 'User', skipDefault: true },
 ];

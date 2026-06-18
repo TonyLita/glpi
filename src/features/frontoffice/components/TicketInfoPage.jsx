@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { initSession, killSession } from '../../../api/session';
 import { getTicket } from '../../../api/tickets';
 import { TICKET_TYPE_OPTIONS, TICKET_STATUS_OPTIONS, TICKET_URGENCY_OPTIONS, TICKET_IMPACT_OPTIONS } from '../../../constants/selectOptions';
-
+                                                        
 function optionLabel(options, value) {
   const opt = options.find(o => o.value === String(value));
   return opt ? opt.label : 'N/A';

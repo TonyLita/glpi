@@ -133,8 +133,8 @@ public class MouvementController {
     List<TicketCostsExtra> costs = coutsRepo.findByRefTicket(refTicket);
     if (costs.isEmpty()) return 0.0;
     switch (mode) {
-      case "mode1": return costs.stream().max(Comparator.comparing(TicketCostsExtra::getId)).map(TicketCostsExtra::getCostFixed).orElse(0.0);
-      case "mode2": return costs.stream().min(Comparator.comparing(TicketCostsExtra::getId)).map(TicketCostsExtra::getCostFixed).orElse(0.0);
+      case "mode1": return costs.stream().max(Comparator.comparing(TicketCostsExtra::getCreatedAt)).map(TicketCostsExtra::getCostFixed).orElse(0.0);
+      case "mode2": return costs.stream().min(Comparator.comparing(TicketCostsExtra::getCreatedAt)).map(TicketCostsExtra::getCostFixed).orElse(0.0);
       case "mode3": return costs.stream().mapToDouble(TicketCostsExtra::getCostFixed).average().orElse(0.0);
       case "mode4": return costs.stream().mapToDouble(TicketCostsExtra::getCostFixed).sum();
       default: return 0.0;

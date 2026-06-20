@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { importer } from '../../../api/backendApi';
 import { initSession, killSession } from '../../../api/session';
 import { listItems } from '../../../api/items';
+import { updateTicketStatus } from '../../../api/tickets';
 
 function extractRefTicket(content) {
   if (!content) return null;
@@ -23,16 +24,23 @@ export default function ImportMovementsPage() {
   const [chargementManuel, setChargementManuel] = useState(false);
 
   const [ticketsGlpi, setTicketsGlpi] = useState([]);
-
+  const [ticketsMap, setTicketsMap] = useState({});
   useEffect(() => {
     async function chargerTickets() {
       let sessionToken = null;
       try {
         sessionToken = await initSession();
         const rows = await listItems(sessionToken, 'Ticket', 0, 499);
+        const map = {};
         const avec_ref = rows
           .map(t => ({ id: t.id, name: t.name || '', ref: extractRefTicket(t.content) }))
+          .map(t => {
+            const ref = extractRefTicket(t.content);
+            if (ref) map[ref] = { glpiId: t.id, status: t.status };
+            return { id: t.id, name: t.name || '', ref };
+          })
           .filter(t => t.ref);
+          setTicketsMap(map);
         setTicketsGlpi(avec_ref);
       } catch (e) {
         // Silencieux: saisie manuelle reste disponible
@@ -55,6 +63,18 @@ export default function ImportMovementsPage() {
   }
 
   // Handler saisie manuelle
+  async function changeTicketStatus(glpiId, fromStatus, toStatus) {
+    let sessionToken = null;
+    try {
+      sessionToken = await initSession();
+      await updateTicketStatus(sessionToken, glpiId, toStatus);
+    } finally {
+      if (sessionToken) await killSession(sessionToken).catch(() => { });
+    }
+  }
+
+
+
   async function handleClickManuel() {
     if (!ticket || !mouvement) { setErreur('Complétez ticket et mouvement'); return; }
     if (mouvement === 'open' && !valeur) { setErreur('Saisir un % pour "open"'); return; }
@@ -63,7 +83,18 @@ export default function ImportMovementsPage() {
     setErreur('');
     setSucces('');
     try {
+      const ticketInfo = TicketMap [ticket];
       const res = await ajouterMouvement(ticket, mouvement, valeur ? parseFloat(valeur.replace(',', '.')) : null, modeCalcul);
+
+      // Change statut GLPI selon mouvement
+      if (ticketInfo) {
+        if (mouvement === 'open') {
+          await changeTicketStatus(ticketInfo.glpiId, 5, 2);  // 5→2 (Closed→In Progress)
+        } else if (mouvement === 'close') {
+          await changeTicketStatus(ticketInfo.glpiId, ticketInfo.status, 5);  // →5 (Closed)
+        }
+      }
+
       setResultats([...resultats, res]);
       setSucces(`Mouvement ajouté (#${ticket})`);
       setTicket(''); setMouvement(''); setValeur('');
@@ -105,7 +136,19 @@ export default function ImportMovementsPage() {
         if (!tickStr || !mouvStr) continue;
         try {
           const modeToUse = normaliserMode(modeStr) || modeCalcul;
+          const ticketInfo = ticketsMap[tickStr];
           const res = await ajouterMouvement(tickStr, mouvStr, valStr ? parseFloat(valStr.replace(',', '.')) : null, modeToUse);
+
+
+          // Change statut GLPI selon mouvement
+          if (ticketInfo) {
+            if (mouvStr === 'open') {
+              await changeTicketStatus(ticketInfo.glpiId, 5, 2);  // 5→2 (Closed→In Progress)
+            } else if (mouvStr === 'close') {
+              await changeTicketStatus(ticketInfo.glpiId, ticketInfo.status, 5);  // →5 (Closed)
+            }
+          }
+
           setResultats(prev => [...prev, res]);
           ok++;
         } catch (e) {

@@ -207,7 +207,7 @@ export default function ListTickets() {
                 </tr>
               ))}
               {data.length > 0 && (
-                <tr style={{ borderTop: '2px solid #333', backgroundColor: '#f0f0f0', fontWeight: 'bold' }}>
+                <tr style={{ borderTop: '2px solid #333', fontWeight: 'bold' }}>
                   <td colSpan="4" style={{ padding: '0.5rem', borderRight: '1px solid #333', textAlign: 'right' }}>
                     TOTAL GÉNÉRAL
                   </td>

@@ -5,7 +5,7 @@ import { listItems } from '../../../api/items';
 import { updateTicketStatus } from '../../../api/tickets';
 import { KANBAN_COLUMNS, TICKET_URGENCY_OPTIONS, TICKET_IMPACT_OPTIONS, TICKET_TYPE_OPTIONS, TICKET_STATUS_OPTIONS, ASSET_ELEMENT_TYPES } from '../../../constants/selectOptions';
 import { createTicket, linkTicketItems } from '../../../api/tickets';
-import { getKanbanSettings, ajouterCoutTicket, supprimerCoutsTicket, enregistrerReouverture, supprimerDernierCoutTicket, supprimerDerniereReouverture } from '../../../api/backendApi';
+import { getKanbanSettings, ajouterCoutTicket, supprimerCoutsTicket, ajouterMouvement, supprimerDernierCoutTicket } from '../../../api/backendApi';
 
 function defaultDatetime() {
   return new Date().toISOString().slice(0, 16);
@@ -307,7 +307,7 @@ export default function KanbanBoard() {
       if (supprimerDernierCout) {
         await supprimerDernierCoutTicket(pendingReouverture.ticketId);
       }
-      await enregistrerReouverture(pendingReouverture.ticketId, pct, modeReouverture);
+      await ajouterMouvement(pendingReouverture.ticketId, 'open', pct, modeReouverture);
       await changeStatus(pendingReouverture.glpiId, pendingReouverture.fromStatus, pendingReouverture.toStatus);
       setPendingReouverture(null);
       setPourcentageReouverture('');

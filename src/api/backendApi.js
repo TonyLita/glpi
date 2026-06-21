@@ -38,18 +38,12 @@ export async function supprimerDernierCoutTicket(refTicket) {
   return res.json();
 }
 
-export async function enregistrerReouverture(refTicket, percentage, mode = 'mode1') {
-  const res = await fetch(`${BASE}/api/ticket-reouverture/${refTicket}`, {
+export async function ajouterMouvement(refTicket, typeMovement, valeur, mode = 'mode1') {
+  const res = await fetch(`${BASE}/api/mouvements/ajouter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ percentage, mode }),
+    body: JSON.stringify({ refTicket, type: typeMovement, valeur, mode }),
   });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-
-export async function supprimerDerniereReouverture(refTicket) {
-  const res = await fetch(`${BASE}/api/ticket-reouverture/${refTicket}/dernier`, { method: 'DELETE' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }

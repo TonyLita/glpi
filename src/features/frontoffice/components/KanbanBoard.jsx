@@ -5,7 +5,7 @@ import { listItems } from '../../../api/items';
 import { updateTicketStatus } from '../../../api/tickets';
 import { KANBAN_COLUMNS, TICKET_URGENCY_OPTIONS, TICKET_IMPACT_OPTIONS, TICKET_TYPE_OPTIONS, TICKET_STATUS_OPTIONS, ASSET_ELEMENT_TYPES } from '../../../constants/selectOptions';
 import { createTicket, linkTicketItems } from '../../../api/tickets';
-import { getKanbanSettings, ajouterCoutTicket, supprimerCoutsTicket, ajouterMouvement, supprimerDernierCoutTicket } from '../../../api/backendApi';
+import { getKanbanSettings, ajouterCoutTicket, supprimerCoutsTicket, ajouterMouvement, supprimerDernierCoutTicket, supprimerDerniereReouverture } from '../../../api/backendApi';
 
 function defaultDatetime() {
   return new Date().toISOString().slice(0, 16);
@@ -361,7 +361,12 @@ export default function KanbanBoard() {
 
   return (
     <div className="reinit-card front-card-wide">
-      <h2>Frontoffice - Kanban Tickets</h2>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <h2 style={{ margin: 0 }}>Frontoffice - Kanban Tickets</h2>
+        <button className="btn btn-secondary" onClick={loadTickets} disabled={loading}>
+          {loading ? 'Chargement...' : 'Synchroniser'}
+        </button>
+      </div>
       <p className="reinit-desc">Glissez les tickets pour changer de statut. Cliquez pour détails.</p>
 
       {error && <div className="status-banner error" style={{ marginBottom: '1rem' }}>{error}</div>}

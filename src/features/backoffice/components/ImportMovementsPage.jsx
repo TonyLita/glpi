@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { importer } from '../../../api/backendApi';
+import { ajouterMouvement } from '../../../api/backendApi';
 import { initSession, killSession } from '../../../api/session';
 import { listItems } from '../../../api/items';
 import { updateTicketStatus } from '../../../api/tickets';
@@ -25,6 +25,7 @@ export default function ImportMovementsPage() {
 
   const [ticketsGlpi, setTicketsGlpi] = useState([]);
   const [ticketsMap, setTicketsMap] = useState({});
+
   useEffect(() => {
     async function chargerTickets() {
       let sessionToken = null;
@@ -33,14 +34,13 @@ export default function ImportMovementsPage() {
         const rows = await listItems(sessionToken, 'Ticket', 0, 499);
         const map = {};
         const avec_ref = rows
-          .map(t => ({ id: t.id, name: t.name || '', ref: extractRefTicket(t.content) }))
           .map(t => {
             const ref = extractRefTicket(t.content);
             if (ref) map[ref] = { glpiId: t.id, status: t.status };
             return { id: t.id, name: t.name || '', ref };
           })
           .filter(t => t.ref);
-          setTicketsMap(map);
+        setTicketsMap(map);
         setTicketsGlpi(avec_ref);
       } catch (e) {
         // Silencieux: saisie manuelle reste disponible
@@ -51,30 +51,18 @@ export default function ImportMovementsPage() {
     chargerTickets();
   }, []);
 
-  // Fonction métier unique (source de vérité)
-  async function ajouterMouvement(refTicket, typeMovement, valeurInput, mode = 'mode1') {
-    const res = await fetch('/backend/api/mouvements/ajouter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refTicket, type: typeMovement, valeur: valeurInput, mode })
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  }
-
-  // Handler saisie manuelle
+  // Change statut ticket GLPI
   async function changeTicketStatus(glpiId, fromStatus, toStatus) {
     let sessionToken = null;
     try {
       sessionToken = await initSession();
       await updateTicketStatus(sessionToken, glpiId, toStatus);
     } finally {
-      if (sessionToken) await killSession(sessionToken).catch(() => { });
+      if (sessionToken) await killSession(sessionToken).catch(() => {});
     }
   }
 
-
-
+  // Handler saisie manuelle
   async function handleClickManuel() {
     if (!ticket || !mouvement) { setErreur('Complétez ticket et mouvement'); return; }
     if (mouvement === 'open' && !valeur) { setErreur('Saisir un % pour "open"'); return; }
@@ -83,7 +71,7 @@ export default function ImportMovementsPage() {
     setErreur('');
     setSucces('');
     try {
-      const ticketInfo = TicketMap [ticket];
+      const ticketInfo = ticketsMap[ticket];
       const res = await ajouterMouvement(ticket, mouvement, valeur ? parseFloat(valeur.replace(',', '.')) : null, modeCalcul);
 
       // Change statut GLPI selon mouvement
@@ -138,7 +126,6 @@ export default function ImportMovementsPage() {
           const modeToUse = normaliserMode(modeStr) || modeCalcul;
           const ticketInfo = ticketsMap[tickStr];
           const res = await ajouterMouvement(tickStr, mouvStr, valStr ? parseFloat(valStr.replace(',', '.')) : null, modeToUse);
-
 
           // Change statut GLPI selon mouvement
           if (ticketInfo) {

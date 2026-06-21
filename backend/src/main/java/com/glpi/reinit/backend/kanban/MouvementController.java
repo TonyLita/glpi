@@ -129,6 +129,12 @@ public class MouvementController {
     }
   }
 
+  @DeleteMapping("/reouvertures/{refTicket}/dernier")
+  public Map<String, String> supprimerDerniereReouverture(@PathVariable String refTicket) {
+    reouvertureRepo.findFirstByRefTicketOrderByIdDesc(refTicket).ifPresent(reouvertureRepo::delete);
+    return Map.of("status", "deleted");
+  }
+
   private Double calculateBaseExtra(String refTicket, String mode) {
     List<TicketCostsExtra> costs = coutsRepo.findByRefTicket(refTicket);
     if (costs.isEmpty()) return 0.0;

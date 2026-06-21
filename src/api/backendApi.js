@@ -38,12 +38,18 @@ export async function supprimerDernierCoutTicket(refTicket) {
   return res.json();
 }
 
-export async function ajouterMouvement(refTicket, typeMovement, valeur, mode = 'mode1') {
+export async function ajouterMouvement(refTicket, type, valeur, mode = 'mode1') {
   const res = await fetch(`${BASE}/api/mouvements/ajouter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refTicket, type: typeMovement, valeur, mode }),
+    body: JSON.stringify({ refTicket, type, valeur, mode }),
   });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+export async function supprimerDerniereReouverture(refTicket) {
+  const res = await fetch(`${BASE}/api/mouvements/reouvertures/${refTicket}/dernier`, { method: 'DELETE' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }

@@ -20,15 +20,19 @@ public class TicketReouverture {
   @Column(name = "base_extra", nullable = false)
   private Double baseExtra = 0.0;
 
+  @Column(name = "mode", nullable = false)
+  private String mode = "mode1";
+
   @Column(name = "created_at")
   private LocalDateTime createdAt;
 
   public TicketReouverture() {}
 
-  public TicketReouverture(String refTicket, Double percentage, Double baseExtra) {
+  public TicketReouverture(String refTicket, Double percentage, Double baseExtra, String mode) {
     this.refTicket = refTicket;
     this.percentage = percentage;
     this.baseExtra = baseExtra;
+    this.mode = mode != null ? mode : "mode1";
     this.createdAt = LocalDateTime.now();
   }
 
@@ -36,11 +40,13 @@ public class TicketReouverture {
   public String getRefTicket()              { return refTicket; }
   public Double  getPercentage()            { return percentage; }
   public Double  getBaseExtra()             { return baseExtra; }
+  public String  getMode()                  { return mode; }
   public LocalDateTime getCreatedAt()       { return createdAt; }
 
   public void setId(Integer id)                       { this.id = id; }
   public void setRefTicket(String refTicket)          { this.refTicket = refTicket; }
   public void setPercentage(Double percentage)        { this.percentage = percentage; }
   public void setBaseExtra(Double baseExtra)          { this.baseExtra = baseExtra; }
+  public void setMode(String mode)                    { this.mode = mode; }
   public void setCreatedAt(LocalDateTime createdAt)   { this.createdAt = createdAt; }
 }

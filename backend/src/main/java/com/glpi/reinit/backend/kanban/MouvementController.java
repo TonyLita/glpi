@@ -52,7 +52,7 @@ public class MouvementController {
               if (valeur == null) continue;
               Double baseExtra = calculateBaseExtra(refTicket, mode);
               TicketReouverture r = reouvertureRepo.save(
-                new TicketReouverture(refTicket, valeur, baseExtra)
+                new TicketReouverture(refTicket, valeur, baseExtra, mode)
               );
               resultats.add(Map.of(
                 "action", "reouverture",
@@ -110,7 +110,7 @@ public class MouvementController {
       case REOUVERTURE:
         if (valeur == null) throw new IllegalArgumentException("Valeur requise pour réouverture");
         Double baseExtra = calculateBaseExtra(refTicket, mode);
-        TicketReouverture r = reouvertureRepo.save(new TicketReouverture(refTicket, valeur, baseExtra));
+        TicketReouverture r = reouvertureRepo.save(new TicketReouverture(refTicket, valeur, baseExtra, mode));
         return Map.of("id", r.getId(), "ref_ticket", refTicket, "percentage", valeur, "action", "reouverture");
 
       case COUT_FINAL:
@@ -135,8 +135,83 @@ public class MouvementController {
     return Map.of("status", "deleted");
   }
 
+  @GetMapping("/reouvertures")
+  public List<TicketReouverture> listerReouvertures() {
+    return reouvertureRepo.findAll();
+  }
+
+  @PutMapping("/reouvertures/{id}")
+  public TicketReouverture modifierReouverture(@PathVariable Integer id, @RequestBody Map<String, Object> body) {
+    TicketReouverture r = reouvertureRepo.findById(id).orElseThrow();
+    if (body.containsKey("percentage")) r.setPercentage(((Number) body.get("percentage")).doubleValue());
+    if (body.containsKey("mode")) {
+      r.setMode((String) body.get("mode"));
+      r.setBaseExtra(calculateBaseExtraAvant(r.getRefTicket(), r.getMode(), r.getCreatedAt()));
+    }
+    return reouvertureRepo.save(r);
+  }
+
+  @DeleteMapping("/reouvertures/{id}")
+  public Map<String, String> supprimerReouverture(@PathVariable Integer id) {
+    reouvertureRepo.deleteById(id);
+    return Map.of("status", "deleted");
+  }
+
+  @GetMapping("/couts")
+  public List<TicketCostsExtra> listerCouts() {
+    return coutsRepo.findAll();
+  }
+
+  @PutMapping("/couts/{id}")
+  public TicketCostsExtra modifierCout(@PathVariable Integer id, @RequestBody Map<String, Object> body) {
+    TicketCostsExtra cout = coutsRepo.findById(id).orElseThrow();
+    cout.setCostFixed(((Number) body.get("cost_fixed")).doubleValue());
+    coutsRepo.save(cout);
+    // Recalculer base_extra de toutes les réouvertures du même ticket
+    // Mais SEULEMENT pour les réouvertures créées APRÈS ce supercost
+    for (TicketReouverture r : reouvertureRepo.findByRefTicket(cout.getRefTicket())) {
+      if (r.getCreatedAt().isAfter(cout.getCreatedAt())) {
+        r.setBaseExtra(calculateBaseExtraAvant(cout.getRefTicket(), r.getMode(), r.getCreatedAt()));
+        reouvertureRepo.save(r);
+      }
+    }
+    return cout;
+  }
+
+  @DeleteMapping("/couts/{id}")
+  public Map<String, String> supprimerCout(@PathVariable Integer id) {
+    coutsRepo.deleteById(id);
+    return Map.of("status", "deleted");
+  }
+
+  @PostMapping("/recalculer-tous")
+  public Map<String, Object> recalculerTous() {
+    int count = 0;
+    for (TicketReouverture r : reouvertureRepo.findAll()) {
+      r.setBaseExtra(calculateBaseExtra(r.getRefTicket(), r.getMode()));
+      reouvertureRepo.save(r);
+      count++;
+    }
+    return Map.of("status", "success", "count", count);
+  }
+
   private Double calculateBaseExtra(String refTicket, String mode) {
     List<TicketCostsExtra> costs = coutsRepo.findByRefTicket(refTicket);
+    if (costs.isEmpty()) return 0.0;
+    switch (mode) {
+      case "mode1": return costs.stream().max(Comparator.comparing(TicketCostsExtra::getCreatedAt)).map(TicketCostsExtra::getCostFixed).orElse(0.0);
+      case "mode2": return costs.stream().min(Comparator.comparing(TicketCostsExtra::getCreatedAt)).map(TicketCostsExtra::getCostFixed).orElse(0.0);
+      case "mode3": return costs.stream().mapToDouble(TicketCostsExtra::getCostFixed).average().orElse(0.0);
+      case "mode4": return costs.stream().mapToDouble(TicketCostsExtra::getCostFixed).sum();
+      default: return 0.0;
+    }
+  }
+
+  // Recalcule base_extra en ne prenant que les supercosts créés AVANT la réouverture
+  private Double calculateBaseExtraAvant(String refTicket, String mode, java.time.LocalDateTime reouvertureDate) {
+    List<TicketCostsExtra> costs = coutsRepo.findByRefTicket(refTicket).stream()
+      .filter(c -> c.getCreatedAt().isBefore(reouvertureDate))
+      .collect(java.util.stream.Collectors.toList());
     if (costs.isEmpty()) return 0.0;
     switch (mode) {
       case "mode1": return costs.stream().max(Comparator.comparing(TicketCostsExtra::getCreatedAt)).map(TicketCostsExtra::getCostFixed).orElse(0.0);

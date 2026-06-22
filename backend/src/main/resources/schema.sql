@@ -21,8 +21,11 @@ CREATE TABLE IF NOT EXISTS ticket_reouverture (
   ref_ticket TEXT    NOT NULL,
   percentage REAL    NOT NULL,
   base_extra REAL    NOT NULL DEFAULT 0,
+  mode       TEXT    NOT NULL DEFAULT 'mode1',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- Migration base existante (ignoré si colonne déjà présente grace à continue-on-error)
+ALTER TABLE ticket_reouverture ADD COLUMN mode TEXT NOT NULL DEFAULT 'mode1';
 
 -- Index pour recherches par ref_ticket
 CREATE INDEX IF NOT EXISTS idx_ticket_costs_extra_ref ON ticket_costs_extra(ref_ticket);

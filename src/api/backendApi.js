@@ -77,3 +77,53 @@ export async function cleanupDatabase() {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
+
+export async function listerReouvertures() {
+  const res = await fetch(`${BASE}/api/mouvements/reouvertures`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+export async function modifierReouverture(id, data) {
+  const res = await fetch(`${BASE}/api/mouvements/reouvertures/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+export async function supprimerReouverture(id) {
+  const res = await fetch(`${BASE}/api/mouvements/reouvertures/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+export async function listerCouts() {
+  const res = await fetch(`${BASE}/api/mouvements/couts`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+export async function modifierCout(id, data) {
+  const res = await fetch(`${BASE}/api/mouvements/couts/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+export async function supprimerCout(id) {
+  const res = await fetch(`${BASE}/api/mouvements/couts/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+export async function recalculerTousLesBaseExtra() {
+  const res = await fetch(`${BASE}/api/mouvements/recalculer-tous`, { method: 'POST' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}

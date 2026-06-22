@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Routes, Route, NavLink, Navigate, useNavigate } from 'react-router-dom';
 import {
   Activity, ClipboardList, Database, FilePlus2, Home, LogOut,
-  RotateCcw, ServerCrash, Settings, Ticket, Upload,
+  RotateCcw, ServerCrash, Settings, Ticket, Upload, TableProperties,
 } from 'lucide-react';
 
 import BackofficeHome from '../components/BackofficeHome';
@@ -16,6 +16,7 @@ import TicketsPage from '../components/TicketsPage';
 import KanbanSettingsPage from '../components/KanbanSettingsPage';
 import ListTickets from '../components/ListTickets';
 import ImportMovementsPage from '../components/ImportMovementsPage';
+import DataMovementsPage from '../components/DataMovementsPage';
 
 const BACKOFFICE_CODE = import.meta.env.VITE_BACKOFFICE_CODE || 'GLPI-BO-2026';
 const AUTH_KEY = 'glpi_backoffice_unlocked';
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   // { path: 'reinit-v2',   label: 'Réinitialisation v2', Icon: RotateCcw },
   { path: 'import',      label: 'Import CSV',          Icon: FilePlus2 },
   { path: 'import-mouvements', label: 'Import mouvements', Icon: Upload },
+  { path: 'data-mouvements',  label: 'Données mouvements', Icon: TableProperties },
   { path: 'browse',      label: 'Consultation',        Icon: Database },
   { path: 'api',         label: 'Test API',            Icon: Activity },
   { path: 'bulk-import', label: 'Import groupé',       Icon: Upload },
@@ -141,6 +143,7 @@ export default function BackofficePage() {
           {/* <Route path="reinit-v2"   element={<ReInitV2Button />} /> */}
           <Route path="import"      element={<CsvImport />} />
           <Route path="import-mouvements" element={<ImportMovementsPage />} />
+          <Route path="data-mouvements"  element={<DataMovementsPage />} />
           <Route path="browse"      element={<DataBrowser />} />
           <Route path="api"         element={<ApiHealth />} />
           <Route path="bulk-import" element={<BulkImport />} />
